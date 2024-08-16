@@ -1,0 +1,102 @@
+import { useEffect, useRef, useState } from "react";
+import { hightlightsSlides } from "../constants";
+import gsap from "gsap";
+
+const VideoCarousel = () => {
+
+    const videoRef = useRef([])
+    const videoSpanRef = useRef([])
+    const videoDivRef = useRef([])
+
+    const [video, setVideo] = useState({
+        isEnd: false,
+        startPlay: false,
+        videoId: 0,
+        isLastVideo: false,
+        isplaying: false
+    })
+
+    const [loadedData, setLoadedData] = useState([])
+
+    const { isEnd, isLastVideo, startPlay, videoId, isplaying } = video;
+
+
+    useEffect(() => {
+        if (loadedData.length > 3) {
+            if (!isplaying) {
+                videoRef.current[videoId].pause()
+            }
+            else {
+                startPlay && videoRef.current[videoId].play();
+            }
+        }
+    }, [startPlay, videoId, isplaying, loadedData])
+
+    useEffect(() => {
+        const currentVProgress = 0;
+        let span = videoSpanRef.current;
+
+        if (span[videoId]) {
+            //animate the progress of the video
+            let anim = gsap.to(span[videoId], {
+                onUpdate: () => {
+
+                },
+
+                onComplete: () => {
+
+                }
+            })
+        }
+    }, [videoId, startPlay])
+
+    return (
+        <>
+            <div className="flex items-center">
+                {hightlightsSlides.map((list, i) => (
+                    <div key={list.id} id="slider" className="sm:pr-20 pr-10">
+                        <div className="video-carousel_container">
+                            <div className="w-full h-full flex-center rounded-3xl overflow-hidden bg-black">
+                                <video id="video"
+                                    playsInline={true}
+                                    preload="auto"
+                                    muted
+                                    ref={(el) => (videoRef.current[i] = el)}
+                                    onPlay={() => {
+                                        setVideo((prevVideo) => ({
+                                            ...prevVideo, isplaying: true
+                                        }))
+                                    }}
+                                >
+                                    <source src={list.video} type="video/mp4" />
+                                </video>
+                            </div>
+                            <div className="absolute top-12 left-[5%] z-10">
+                                {list.textLists.map((text) => (
+                                    <p key={text} className="md:text-2xl text-xl font-medium">{text}</p>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="relative flex-center mt-10">
+                <div className="flex-center py-5 px-7 bg-gray-300 backdrop-blur rounded-full">
+                    {videoRef.current.map((_, i) => (
+                        <span key={i}
+                            ref={(el) => (videoDivRef.current[i] = el)}
+                            className="mx-2 w-3 h-3 bg-gray-200 rounded-full relative cursor-pointer"
+                        >
+                            <span className="absolute h-full w-full rounded"
+                                ref={(el) => (videoSpanRef.current[i] = el)}
+                            />                            
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default VideoCarousel;
